@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/http/httputil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -24,6 +25,7 @@ var (
 type bytesHandler []byte
 
 func (h bytesHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	dump(req)
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.WriteHeader(*status)
 	w.Write(h)
@@ -96,4 +98,12 @@ func main() {
 	}()
 	log.Printf("Serving %s on %s%s...", body, listen, *path)
 	log.Fatal(http.ListenAndServe(listen, nil))
+}
+
+func dump(req *http.Request) {
+	requestDump, err := httputil.DumpRequest(req, true)
+	if err != nil {
+		log.Println(err)
+	}
+	log.Println(string(requestDump))
 }
